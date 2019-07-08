@@ -137,6 +137,7 @@ public class NioServer
             return;
         }
         //打印数据
+        /** 判断实际读取到数据 */
         if(readBuffer.position() > 0)
         {
             String content = CodecUtil.newString(readBuffer);
