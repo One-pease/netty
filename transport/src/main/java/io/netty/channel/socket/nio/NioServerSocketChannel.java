@@ -126,6 +126,13 @@ public class NioServerSocketChannel extends AbstractNioMessageChannel
         return SocketUtils.localSocketAddress(javaChannel().socket());
     }
 
+    /**
+     * @Author ltf
+     * @Description 最终绑定方法
+     * @Date 17:21 2019/7/12
+     * @Param [localAddress]
+     * @return void
+     **/
     @Override
     protected void doBind(SocketAddress localAddress) throws Exception {
         if (PlatformDependent.javaVersion() >= 7) {

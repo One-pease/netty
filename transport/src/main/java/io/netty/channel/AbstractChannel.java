@@ -525,6 +525,13 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
             }
         }
 
+        /**
+         * @Author ltf
+         * @Description 绑定调用
+         * @Date 17:21 2019/7/12
+         * @Param [localAddress, promise]
+         * @return void
+         **/
         @Override
         public final void bind(final SocketAddress localAddress, final ChannelPromise promise) {
             assertEventLoop();
@@ -546,7 +553,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                         "address (" + localAddress + ") anyway as requested.");
             }
 
-            boolean wasActive = isActive();
+            boolean wasActive = isActive();//获得 Channel 是否激活( active )
             try {
                 doBind(localAddress);
             } catch (Throwable t) {
@@ -555,7 +562,9 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                 return;
             }
 
+            // 若 Channel 是新激活的，触发通知 Channel 已激活的事件。
             if (!wasActive && isActive()) {
+                /** 调用 DefaultChannelPipeline#fireChannelActive() 方法，触发 Channel 激活的事件 */
                 invokeLater(new Runnable() {
                     @Override
                     public void run() {
@@ -564,6 +573,7 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
                 });
             }
 
+            /** 调用 #safeSetSuccess(ChannelPromise) 方法，回调通知 promise 执行成功 */
             safeSetSuccess(promise);
         }
 
@@ -831,12 +841,15 @@ public abstract class AbstractChannel extends DefaultAttributeMap implements Cha
 
         @Override
         public final void beginRead() {
+            // 判断是否在 EventLoop 的线程中。
             assertEventLoop();
 
+            // Channel 必须激活
             if (!isActive()) {
                 return;
             }
 
+            // 执行开始读取
             try {
                 doBeginRead();
             } catch (final Exception e) {
